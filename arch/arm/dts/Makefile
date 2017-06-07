@@ -143,7 +143,8 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-qspi-x2-single.dtb		\
 	zynqmp-mini-qspi-x2-stacked.dtb		\
 	zynqmp-mini-nand.dtb			\
-	zynqmp-mini-emmc.dtb
+	zynqmp-mini-emmc.dtb			\
+	zynqmp-ultrazed-eg-iocc.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
 	am335x-draco.dtb \
 	am335x-evm.dtb \

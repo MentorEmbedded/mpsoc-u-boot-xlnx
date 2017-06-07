@@ -1,0 +1,280 @@
+/*
+ * dts file for Avnet UltraZed-EG with IO carrier card
+ *
+ * (C) Copyright 2017, Mentor Graphics, Inc.
+ *
+ * Alexey Firago <alexey_firago@mentor.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ */
+
+/dts-v1/;
+
+#include "zynqmp.dtsi"
+#include "zynqmp-clk-ccf.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/pinctrl-zynqmp.h>
+#include <dt-bindings/phy/phy.h>
+
+/ {
+	model = "Avnet UltraZed-EG";
+	compatible = "xlnx,ultrazed", "xlnx,zynqmp";
+
+	aliases {
+		ethernet0 = &gem3;
+		gpio0 = &gpio;
+		i2c1 = &i2c1;
+		mmc0 = &sdhci1;
+		rtc0 = &rtc;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		usb0 = &usb0;
+	};
+
+	chosen {
+		bootargs = "earlycon clk_ignore_unused";
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+};
+
+&fpd_dma_chan1 {
+	status = "okay";
+};
+
+&fpd_dma_chan2 {
+	status = "okay";
+};
+
+&fpd_dma_chan3 {
+	status = "okay";
+};
+
+&fpd_dma_chan4 {
+	status = "okay";
+};
+
+&fpd_dma_chan5 {
+	status = "okay";
+};
+
+&fpd_dma_chan6 {
+	status = "okay";
+};
+
+&fpd_dma_chan7 {
+	status = "okay";
+};
+
+&fpd_dma_chan8 {
+	status = "okay";
+};
+
+&lpd_dma_chan1 {
+	status = "okay";
+};
+
+&lpd_dma_chan2 {
+	status = "okay";
+};
+
+&lpd_dma_chan3 {
+	status = "okay";
+};
+
+&lpd_dma_chan4 {
+	status = "okay";
+};
+
+&lpd_dma_chan5 {
+	status = "okay";
+};
+
+&lpd_dma_chan6 {
+	status = "okay";
+};
+
+&lpd_dma_chan7 {
+	status = "okay";
+};
+
+&lpd_dma_chan8 {
+	status = "okay";
+};
+
+&xilinx_ams {
+	status = "okay";
+};
+
+&gem3 {
+	status = "okay";
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+	phy0: phy@5 {
+		reg = <0x5>;
+		ti,rx-internal-delay = <0x5>;
+		ti,tx-internal-delay = <0x5>;
+		ti,fifo-depth = <0x1>;
+	};
+};
+
+&rtc {
+	status = "okay";
+};
+
+&gpu {
+	status = "okay";
+};
+
+&i2c1 {
+	clock-frequency = <100000>;
+	status = "okay";
+	
+	i2cswitch@70 { 
+		compatible = "nxp,pca9542";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x70>;
+		i2c@0 { 
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+			
+			eeprom@52 {
+				compatible = "at,24c08";
+				reg = <0x52>;
+			};
+		};
+	};
+};
+
+&pinctrl0 {
+	status = "okay";
+	pinctrl_sdhci1_default: sdhci1-default {
+		mux {
+			groups = "sdio1_4bit_0_1_grp";
+			function = "sdio1";
+		};
+
+		conf {
+			groups = "sdio1_4bit_0_1_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+			bias-disable;
+		};
+
+		mux-cd {
+			groups = "sdio1_0_cd_grp";
+			function = "sdio1_cd";
+		};
+
+		conf-cd {
+			groups = "sdio1_0_cd_grp";
+			bias-high-impedance;
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+
+		mux-wp {
+			groups = "sdio1_0_wp_grp";
+			function = "sdio1_wp";
+		};
+
+		conf-wp {
+			groups = "sdio1_0_wp_grp";
+			bias-high-impedance;
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+	};
+};
+
+&sdhci1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sdhci1_default>;
+	xlnx,mio_bank = <1>;
+	max-frequency = <50000000>;
+	no-1-8-v;
+};
+
+&serdes {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+};
+
+&dwc3_0 {
+	status = "okay";
+	dr_mode = "host";
+	phy-names = "usb3-phy";
+};
+
+&watchdog0 {
+	status = "okay";
+};
+
+&sata {
+	status = "okay";
+	ceva,p0-burst-params = <0x13084a06>;
+	ceva,p0-cominit-params = <0x18401828>;
+	ceva,p0-comwake-params = <0x614080e>;
+	ceva,p0-retry-params = <0x96a43ffc>;
+	ceva,p1-cominit-params = <0x18401828>;
+	ceva,p1-comwake-params = <0x614080e>;
+	ceva,p1-burst-params = <0x13084a06>;
+	ceva,p1-retry-params = <0x96a43ffc>;
+};
+
+&xilinx_drm {
+	status = "okay";
+};
+
+&xlnx_dp {
+	status = "okay";
+	phy-names = "dp-phy0", "dp-phy1";
+	phys = <&lane3 PHY_TYPE_DP 0 3 27000000>,<&lane2 PHY_TYPE_DP 1 3 27000000>;
+};
+
+&xlnx_dp_sub {
+	status = "okay";
+};
+
+&xlnx_dp_snd_pcm0 {
+	status = "okay";
+};
+
+&xlnx_dp_snd_pcm1 {
+	status = "okay";
+};
+
+&xlnx_dp_snd_card {
+	status = "okay";
+};
+
+&xlnx_dp_snd_codec0 {
+	status = "okay";
+};
+
+&xlnx_dpdma {
+	status = "okay";
+};
