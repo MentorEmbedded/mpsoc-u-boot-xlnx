@@ -1,0 +1,403 @@
+/*
+ * dts file for Avnet UltraZed-EG with IO carrier card
+ *
+ * (C) Copyright 2017, Mentor Graphics, Inc.
+ *
+ * Alexey Firago <alexey_firago@mentor.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ */
+
+/dts-v1/;
+
+#include "zynqmp.dtsi"
+#include "zynqmp-clk-ccf.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/pinctrl-zynqmp.h>
+#include <dt-bindings/phy/phy.h>
+
+/ {
+	model = "Avnet UltraZed-EG";
+	compatible = "xlnx,ultrazed", "xlnx,zynqmp";
+
+	aliases {
+		ethernet0 = &gem3;
+		gpio0 = &gpio;
+		i2c1 = &i2c1;
+		mmc0 = &sdhci1;
+		rtc0 = &rtc;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		usb0 = &usb0;
+	};
+
+	chosen {
+		bootargs = "earlycon";
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+};
+
+/* fpd_dma clk 667MHz, lpd_dma 500MHz */
+&fpd_dma_chan1 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+	xlnx,overfetch; /* for testing purpose */
+	xlnx,ratectrl = <0>; /* for testing purpose */
+	xlnx,src-issue = <31>;
+};
+
+&fpd_dma_chan2 {
+	status = "okay";
+	xlnx,ratectrl = <100>; /* for testing purpose */
+	xlnx,src-issue = <4>; /* for testing purpose */
+};
+
+&fpd_dma_chan3 {
+	status = "okay";
+};
+
+&fpd_dma_chan4 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&fpd_dma_chan5 {
+	status = "okay";
+};
+
+&fpd_dma_chan6 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&fpd_dma_chan7 {
+	status = "okay";
+};
+
+&fpd_dma_chan8 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&gem3 {
+	status = "okay";
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_gem3_default>;
+	phy0: phy@5 {
+		reg = <0x5>;
+		ti,rx-internal-delay = <0x5>;
+		ti,tx-internal-delay = <0x5>;
+		ti,fifo-depth = <0x1>;
+	};
+};
+
+&rtc {
+	status = "okay";
+};
+
+&gpu {
+	status = "okay";
+};
+
+&i2c1 {
+	clock-frequency = <100000>;
+	status = "okay";
+	
+	i2cswitch@70 { 
+		compatible = "nxp,pca9542";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x70>;
+		pinctrl-0 = <&pinctrl_i2c1_default>;
+		pinctrl-1 = <&pinctrl_i2c1_gpio>;
+		scl-gpios = <&gpio 16 GPIO_ACTIVE_HIGH>;
+		sda-gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;		
+		i2c@0 { 
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+			
+			eeprom@52 {
+				compatible = "at,24c08";
+				reg = <0x52>;
+			};
+		};
+		
+		i2c@1 { 
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+			
+			vc5: clock-generator@6a {
+				status = "okay";
+				compatible = "idt,5p49v5935";
+				reg = <0x6a>;
+				#clock-cells = <1>;
+			};
+			
+		};
+	};
+};
+
+&pinctrl0 {
+	status = "okay";
+
+	pinctrl_i2c1_default: i2c1-default {
+		mux {
+			groups = "i2c1_6_grp";
+			function = "i2c1";
+		};
+
+		conf {
+			groups = "i2c1_6_grp";
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS18>;
+		};
+	};
+
+	pinctrl_i2c1_gpio: i2c1-gpio {
+		mux {
+			groups = "gpio0_24_grp", "gpio0_25_grp";
+			function = "gpio0";
+		};
+
+		conf {
+			groups = "gpio0_24_grp", "gpio0_25_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS18>;
+		};
+	};
+
+	pinctrl_uart0_default: uart0-default {
+		mux {
+			groups = "uart0_9_grp";
+			function = "uart0";
+		};
+
+		conf {
+			groups = "uart0_9_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+
+		conf-rx {
+			pins = "MIO34";
+			bias-high-impedance;
+		};
+
+		conf-tx {
+			pins = "MIO35";
+			bias-disable;
+		};
+	};
+
+	pinctrl_uart1_default: uart1-default {
+		mux {
+			groups = "uart1_8_grp";
+			function = "uart1";
+		};
+
+		conf {
+			groups = "uart1_8_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+
+		conf-rx {
+			pins = "MIO32";
+			bias-high-impedance;
+		};
+
+		conf-tx {
+			pins = "MIO33";
+			bias-disable;
+		};
+	};
+
+	pinctrl_usb0_default: usb0-default {
+		mux {
+			groups = "usb0_0_grp";
+			function = "usb0";
+		};
+
+		conf {
+			groups = "usb0_0_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS18>;
+		};
+
+		conf-rx {
+			pins = "MIO52", "MIO53", "MIO55";
+			bias-high-impedance;
+		};
+
+		conf-tx {
+			pins = "MIO54", "MIO56", "MIO57", "MIO58", "MIO59",
+			       "MIO60", "MIO61", "MIO62", "MIO63";
+			bias-disable;
+		};
+	};
+
+	pinctrl_gem3_default: gem3-default {
+		mux {
+			function = "ethernet3";
+			groups = "ethernet3_0_grp";
+		};
+
+		conf {
+			groups = "ethernet3_0_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS18>;
+		};
+
+		conf-rx {
+			pins = "MIO70", "MIO71", "MIO72", "MIO73", "MIO74",
+									"MIO75";
+			bias-high-impedance;
+			low-power-disable;
+		};
+
+		conf-tx {
+			pins = "MIO64", "MIO65", "MIO66", "MIO67", "MIO68",
+									"MIO69";
+			bias-disable;
+			low-power-enable;
+		};
+
+		mux-mdio {
+			function = "mdio3";
+			groups = "mdio3_0_grp";
+		};
+
+		conf-mdio {
+			groups = "mdio3_0_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS18>;
+			bias-disable;
+		};
+	};
+
+	pinctrl_sdhci1_default: sdhci1-default {
+		mux {
+			groups = "sdio1_4bit_0_1_grp";
+			function = "sdio1";
+		};
+
+		conf {
+			groups = "sdio1_4bit_0_1_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+			bias-disable;
+		};
+
+		mux-cd {
+			groups = "sdio1_0_cd_grp";
+			function = "sdio1_cd";
+		};
+
+		conf-cd {
+			groups = "sdio1_0_cd_grp";
+			bias-high-impedance;
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+
+		mux-wp {
+			groups = "sdio1_0_wp_grp";
+			function = "sdio1_wp";
+		};
+
+		conf-wp {
+			groups = "sdio1_0_wp_grp";
+			bias-high-impedance;
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			io-standard = <IO_STANDARD_LVCMOS33>;
+		};
+	};
+};
+
+/* SD1 with level shifter */
+&sdhci1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sdhci1_default>;
+	xlnx,mio_bank = <1>;
+	max-frequency = <50000000>;
+	no-1-8-v;	/* for 1.0 silicon */
+};
+
+&serdes {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart0_default>;
+};
+
+&uart1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1_default>;
+};
+
+&usb0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb0_default>;
+};
+
+&dwc3_0 {
+	status = "okay";
+	dr_mode = "host";
+	phy-names = "usb3-phy";
+};
+
+&xilinx_drm {
+	status = "okay";
+};
+
+&xlnx_dp {
+	status = "okay";
+	phy-names = "dp-phy0", "dp-phy1";
+	phys = 	<&lane3 PHY_TYPE_DP 0 3 27000000>, 
+			<&lane2 PHY_TYPE_DP 1 3 27000000>;
+};
+
+&xlnx_dp_sub {
+	status = "okay";
+};
+
+&xlnx_dp_snd_pcm0 {
+	status = "okay";
+};
+
+&xlnx_dp_snd_pcm1 {
+	status = "okay";
+};
+
+&xlnx_dp_snd_card {
+	status = "okay";
+};
+
+&xlnx_dp_snd_codec0 {
+	status = "okay";
+};
+
+&xlnx_dpdma {
+	status = "okay";
+};
